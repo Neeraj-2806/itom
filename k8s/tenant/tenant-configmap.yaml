@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tenant-config
+data:
+  PORT: "5003"
+  REDIS_URL: "redis://redis-tenant:6379"

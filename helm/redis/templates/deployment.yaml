@@ -1,0 +1,55 @@
+{{- if .Values.redis.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "redis.fullname" . }}
+  labels:
+    {{- include "redis.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.redis.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "redis.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "redis.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "redis.name" . }}
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.redis.service.port }}
+          resources:
+            {{- toYaml .Values.redis.resources | nindent 12 }}
+
+          {{- if .Values.redis.livenessProbe.enabled }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.redis.livenessProbe.port }}
+            initialDelaySeconds: {{ .Values.redis.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.redis.livenessProbe.periodSeconds }}
+          {{- end }}
+
+          {{- if .Values.redis.readinessProbe.enabled }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.redis.readinessProbe.port }}
+            initialDelaySeconds: {{ .Values.redis.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.redis.readinessProbe.periodSeconds }}
+          {{- end }}
+
+          {{- if .Values.redis.persistence.enabled }}
+          volumeMounts:
+            - name: redis-db-storage
+              mountPath: /data
+          {{- end }}
+
+      {{- if .Values.redis.persistence.enabled }}
+      volumes:
+        - name: redis-db-storage
+          persistentVolumeClaim:
+            claimName: {{ include "redis.fullname" . }}-pvc
+      {{- end }}
+{{- end }}

@@ -1,0 +1,72 @@
+<!--
+# Asset & Incident Management App
+
+ Overview
+A microservices-based IT Asset and Incident Management system
+built with React, Node.js, Redis, Docker and Kubernetes.
+
+ Architecture
+Browser → Nginx → asset-service → redis-asset
+                → incident-service → redis-incident
+
+
+-> **Frontend** - is a React app served via Nginx (on port 80)
+-> **Asset-service** - it is a service for managing IT assets (port 5001 # defined in server.js of asset service)
+-> **Incident-service** - manages incidents happening with assets. (port 5002 # defined in server.js of incidnet service)
+-> **redis-asset** - dedicated redis DB for asset service (redis listens on port 6379)
+-> **redis-incident** - dedicated redis DB for incident service (redis listens on port 6379)
+
+## Folder Structure
+|-- asset-service/  - Node.js asset microservice  
+|-- incident-service/ - Node.js incident microservice
+|-- frontend/ -         React front served via Nginx
+|-- docker-compose.yaml - Local docker setup to test application locally
+|-- k8s/helm -            Application deployement via HELM Kubernetes
+
+
+# How to run this application locally 
+git clone <repo url>
+cd microservices
+docker compose build 
+odocker compose up -d 
+Open http://localhost
+
+# How to deploy on kubernetes
+cd k8s/helm
+helm install asset-incident ./asset-incident-app
+
+## API endpoints (Asset-service)
+POST - /api/asset        - create an asset
+GET - /api/data          - getl all asset with incidents
+PUT - /api/asset/:id     - update asset
+DELETE - /api/asset/:id  - delete asset
+
+## Incident service
+POST   /api/incident                        - create incident
+PUT    /api/incident/:assetId/:incidentId   - update incident
+DELETE /api/incident/:assetId/:incidentId   - delete incident
+
+
+## Environment variables
+
+| Variable             |  Service         |   Docker Value               |    Kubernetes Value           |           Description                                  
+|----------------------|------------------|----------------------------- |-----------------------------  |--------------------------------------|
+| REDIS_HOST           | asset-service    | redis-asset-db               |    redis-asset-service        | Redis hostname for asset service     |
+| REDIS_PORT           | asset-service    | 6379                         |        6379                   | Redis port                           |
+| INCIDENT_SERVICE_URL | asset-service    | http://incident-service:5002 | http://incident-service:5002  | URL to call incident service         |   
+| REDIS_HOST           | incident-service | redis-incident-db            | redis-incident-service        | Redis hostname for incident service  |
+| REDIS_PORT           | incident-service | 6379                         |        6379                   | Redis port                           |
+
+
+
+## CI/CD Pipeline
+1. Developer pushes code to GitHub or any Source code repository
+2. AWS CodePipeline triggers AWS CodeBuild
+3. Docker image built and pushed to AWS ECR
+4. K8s manifest updated with new image tag with CODE BUILD build number
+5. ArgoCD detects change in the source code repo and deploys the changes to Kubernetes
+
+
+
+
+-->

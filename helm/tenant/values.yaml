@@ -1,0 +1,52 @@
+replicaCount: 1
+
+nameOverride: "tenant-service"
+fullnameOverride: ""
+
+image:
+  repository: neeraj2806/eight-incident-itom
+  tag: "v1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5003
+
+env:
+  PORT: "5003"
+  REDIS_URL: "redis://redis-tenant:6379"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+serviceAccount:
+  create: true
+  automount: false
+  name: ""
+
+strategy:
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+livenessProbe:
+  path: /health
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  path: /health
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80

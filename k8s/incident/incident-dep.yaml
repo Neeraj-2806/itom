@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incident-service
+  template:
+    metadata:
+      labels:
+        app: incident-service
+    spec:
+      containers:
+        - name: incident-service
+          image: seven-microservices-incident-service:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5002
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: incident-config
+                  key: PORT
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: incident-config
+                  key: REDIS_URL
+            - name: ASSET_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: incident-config
+                  key: ASSET_SERVICE_URL
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: incident-service
+spec:
+  selector:
+    app: incident-service
+  ports:
+    - port: 5002
+      targetPort: 5002
+  type: ClusterIP

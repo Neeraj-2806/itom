@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: incident-config
+data:
+  PORT: "5002"
+  REDIS_URL: "redis://redis-incident:6379"
+  ASSET_SERVICE_URL: "http://asset-service:5001"

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asset-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: asset-service
+  template:
+    metadata:
+      labels:
+        app: asset-service
+    spec:
+      containers:
+        - name: asset-service
+          image: seven-microservices-asset-service:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5001
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: asset-config
+                  key: PORT
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: asset-config
+                  key: REDIS_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: asset-service
+spec:
+  selector:
+    app: asset-service
+  ports:
+    - port: 5001
+      targetPort: 5001
+  type: ClusterIP

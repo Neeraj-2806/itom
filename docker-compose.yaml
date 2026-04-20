@@ -1,0 +1,59 @@
+services:
+  redis-db:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+
+  tenant-service:
+    build:
+      context: ./src/tenant-service
+    container_name: tenant-service
+    ports:
+      - "5003:5003"
+    environment:
+      PORT: 5003
+      REDIS_URL: redis://redis-db:6379
+    depends_on:
+      - redis-db
+
+  asset-service:
+    build:
+      context: ./src/asset-service
+    container_name: asset-service
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      REDIS_URL: redis://redis-db:6379
+    depends_on:
+      - redis-db
+
+  incident-service:
+    build:
+      context: ./src/incident-service
+    container_name: incident-service
+    ports:
+      - "5002:5002"
+    environment:
+      PORT: 5002
+      REDIS_URL: redis://redis-db:6379
+      ASSET_SERVICE_URL: http://asset-service:5001
+      DEFAULT_TENANT_ID: tcs
+    depends_on:
+      - redis-db
+
+  frontend:
+    build:
+      context: ./src/frontend
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - tenant-service
+      - asset-service
+      - incident-service
+
+volumes:
+  redis-data:

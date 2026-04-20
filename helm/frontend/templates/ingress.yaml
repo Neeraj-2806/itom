@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "frontend.fullname" . }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: itom.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frontend.fullname" . }}
+                port:
+                  number: 80
+
+          - path: /api/assets
+            pathType: Prefix
+            backend:
+              service:
+                name: asset-service
+                port:
+                  number: 5001
+
+          - path: /api/incidents
+            pathType: Prefix
+            backend:
+              service:
+                name: incident-service
+                port:
+                  number: 5002
+
+          - path: /api/tenants
+            pathType: Prefix
+            backend:
+              service:
+                name: tenant-service
+                port:
+                  number: 5003
