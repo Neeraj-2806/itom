@@ -63,5 +63,4 @@ ingress:
   host: frontend.local
   path: /
   pathType: Prefix
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  annotations: {}
