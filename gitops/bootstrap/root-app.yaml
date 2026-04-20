@@ -1,10 +1,11 @@
+cat values.yaml 
 replicaCount: 1
 
 nameOverride: "tenant-service"
 fullnameOverride: ""
 
 image:
-  repository: neeraj2806/eight-tenant-itom
+  repository: neeraj2806/eight-incident-itom
   tag: "v1"
   pullPolicy: IfNotPresent
 

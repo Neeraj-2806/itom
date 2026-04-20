@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis-infosys
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Neeraj-2806/itom.git
+    targetRevision: main
+    path: helm/redis
+    helm:
+      releaseName: redis-infosys
+      values: |
+        redis:
+          enabled: true
+          replicaCount: 1
+
+          image:
+            repository: redis
+            tag: "7-alpine"
+            pullPolicy: IfNotPresent
+
+          service:
+            type: ClusterIP
+            port: 6379
+
+          persistence:
+            enabled: true
+            storageClass: "standard"
+            size: "1Gi"
+
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+
+          livenessProbe:
+            enabled: true
+            type: tcpSocket
+            port: 6379
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          readinessProbe:
+            enabled: true
+            type: tcpSocket
+            port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          nameOverride: "redis"
+          fullnameOverride: ""
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tenant-infosys
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
