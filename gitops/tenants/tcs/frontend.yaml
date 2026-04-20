@@ -77,7 +77,8 @@ spec:
           host: tcs.itom.local
           path: /
           pathType: Prefix
-          annotations: {}
+          annotations: 
+            nginx.ingress.kubernetes.io/rewrite-target: null
 
   destination:
     server: https://kubernetes.default.svc
